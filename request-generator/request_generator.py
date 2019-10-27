@@ -5,20 +5,31 @@ import datetime
 
 from helpers import DotDict
 
+# This class will create the specified number of requests per second for the
+# specified duration provided that we don't run out of available threads. That
+# will happen if the work that the worker thread is doing takes too long or
+# there are too many workers in each batch for the system to handle.
+
 class WorkerThreadDriver(threading.Thread):
-    def __init__(self, workers, duration, result_queue):
+    def __init__(self, driver_id, workers, duration, result_queue):
         threading.Thread.__init__(self)
+        self.driver_id = driver_id
         self.workers = workers
         self.duration = duration
         self.result_queue = result_queue
         self.threads = []
+        self.thread_counter = 0
         self.stopped = threading.Event()
 
     def start_batch(self):
-        for i in range(self.workers):
-                thread = WorkerThread(self.result_queue)
-                thread.start()
-                self.threads.append(thread)
+        try:
+            for i in range(self.workers):
+                    thread = WorkerThread(self.driver_id, self.thread_counter, self.result_queue)
+                    thread.start()
+                    self.threads.append(thread)
+                    self.thread_counter += 1
+        except RuntimeError:
+            print(f'Unable to create enough worker threads! (threading.active_count:{threading.active_count()})')
 
     def stop_test(self):
         self.stopped.set()
@@ -31,12 +42,16 @@ class WorkerThreadDriver(threading.Thread):
         test_timer.start()
 
         while not self.stopped.wait(1.0):
-            self.start_batch()
+            print(f'active_threads:{threading.active_count()}')
+            batch_thread = threading.Thread(target=self.start_batch, args=())
+            batch_thread.start()
 
 
 class WorkerThread(threading.Thread):
-    def __init__(self, result_queue):
+    def __init__(self, driver_id, thread_id, result_queue):
         threading.Thread.__init__(self)
+        self.driver_id = driver_id
+        self.thread_id = thread_id
         self.result_queue = result_queue
 
     def run(self):
@@ -62,7 +77,7 @@ class WorkerThread(threading.Thread):
             elapsed = time.perf_counter() - start
 
             self.result_queue.put(DotDict({
-                'url':  '-',
+                'url':  f'id:{self.driver_id}_{self.thread_id}',
                 'code': 200,
                 'time': elapsed,
                 'size': 0
@@ -80,7 +95,7 @@ class WorkerThread(threading.Thread):
 
             elapsed = time.perf_counter() - start
             self.result_queue.put(DotDict({
-                'url': '-',
+                'url': f'id:{self.driver_id}_{self.thread_id}',
                 'code': err_code,
                 'time': elapsed,
                 'size': 0,
@@ -89,9 +104,9 @@ class WorkerThread(threading.Thread):
 
 if __name__ == "__main__":
     duration = 10
-    workers = 1000
+    workers = 7000
     result_queue = queue.Queue()
-    thread_driver = WorkerThreadDriver(workers, duration, result_queue)
+    thread_driver = WorkerThreadDriver(0, workers, duration, result_queue)
     thread_driver.start()
     thread_driver.join()
 
@@ -101,13 +116,13 @@ if __name__ == "__main__":
             result = result_queue.get(True, 1)
             num_requests += 1
 
-            print("Timestamp: {}, Code: {}, Size: {}, Time: {:d}ms, URL: {}".format(
-                    str(datetime.datetime.now()),
-                    result.code,
-                    result.size,
-                    int(result.time*1000),
-                    result.url)
-                )
+            # print("Timestamp: {}, Code: {}, Size: {}, Time: {:d}ms, URL: {}".format(
+            #         str(datetime.datetime.now()),
+            #         result.code,
+            #         result.size,
+            #         int(result.time*1000),
+            #         result.url)
+            #     )
 
         except queue.Empty:
             break
