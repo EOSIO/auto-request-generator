@@ -3,9 +3,6 @@ import time
 import queue
 import datetime
 
-from helpers import DotDict
-from helpers import Result
-
 # This class will create the specified number of requests per second for the
 # specified duration provided that we don't run out of available threads. That
 # will happen if the workers take too long or there are too many of them per
@@ -69,9 +66,23 @@ class WorkerThread(threading.Thread):
             self.result_queue.put(result)
         except:
             elapsed = time.perf_counter() - start
-            self.result_queue.put(Result(f'id:{self.driver_id}_{self.thread_id}', 400, elapsed, 0))
+            self.result_queue.put(Result(datetime.datetime.now(), f'id:{self.driver_id}_{self.thread_id}', 400, elapsed, 0))
 
 
+class Result():
+    def __init__(self, timestamp, url, ret_code, elapsed_time, ret_size):
+        self.timestamp = timestamp
+        self.url = url
+        self.code = ret_code
+        self.time = elapsed_time
+        self.size = ret_size
+
+    def __str__(self):
+        time_in_ms = int(self.time*1000)
+        return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}'
+
+
+# From here down is an example of how the request generator can be used
 def mock(driver_id, thread_id, t):
     time.sleep(t)
     return Result(datetime.datetime.now(), f'id:{driver_id}_{thread_id}', 200, 0, 0)
