@@ -1,1 +1,1 @@
-__all__ = ['request_generator', 'helpers', 'WorkerThreadDriver', 'WorkerThread', 'Result']
+__all__ = ['request_generator', 'RequestGenerator', 'Result', 'WorkerThreadDriver', 'WorkerThread']

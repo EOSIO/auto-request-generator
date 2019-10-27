@@ -8,6 +8,48 @@ import datetime
 # will happen if the workers take too long or there are too many of them per
 # batch for the system to handle.
 
+class RequestGenerator():
+    def __init__(self, rps, duration, function, *args, **kwargs):
+        self.rps = rps
+        self.duration = duration
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+
+    def run(self, output_file='output.log'):
+        result_queue = queue.Queue()
+        thread_driver = WorkerThreadDriver(0, self.rps, self.duration, result_queue, self.function, self.args, self.kwargs)
+        thread_driver.start()
+        thread_driver.join()
+
+        num_requests = 0
+        while (True):
+            try:
+                result = result_queue.get(True, 1)
+                num_requests += 1
+                print(result)
+
+            except queue.Empty:
+                break
+
+        return num_requests
+
+class Result():
+    def __init__(self, timestamp, url, ret_code, elapsed_time, ret_size, e=None):
+        self.timestamp = timestamp
+        self.url = url
+        self.code = ret_code
+        self.time = elapsed_time
+        self.size = ret_size
+        self.error = e
+
+    def __str__(self):
+        time_in_ms = int(self.time*1000)
+        if self.error is not None:
+            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}, Error: {self.error}'
+        else:
+            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}'
+
 class WorkerThreadDriver(threading.Thread):
     def __init__(self, driver_id, workers, duration, result_queue, function, *args, **kwargs):
         threading.Thread.__init__(self)
@@ -69,42 +111,19 @@ class WorkerThread(threading.Thread):
             self.result_queue.put(Result(datetime.datetime.now(), f'id:{self.driver_id}_{self.thread_id}', 400, elapsed, 0))
 
 
-class Result():
-    def __init__(self, timestamp, url, ret_code, elapsed_time, ret_size):
-        self.timestamp = timestamp
-        self.url = url
-        self.code = ret_code
-        self.time = elapsed_time
-        self.size = ret_size
-
-    def __str__(self):
-        time_in_ms = int(self.time*1000)
-        return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}'
-
-
-# From here down is an example of how the request generator can be used
-def mock(driver_id, thread_id, t):
-    time.sleep(t)
-    return Result(datetime.datetime.now(), f'id:{driver_id}_{thread_id}', 200, 0, 0)
-
 if __name__ == "__main__":
+
+    # Demonstrate how to use these classes
+
+    def mock(driver_id, thread_id, t):
+        time.sleep(t)
+        return Result(datetime.datetime.now(), f'id:{driver_id}_{thread_id}', 200, 0, 0)
+
+    rps = 1000
     duration = 10
-    workers = 1
-    result_queue = queue.Queue()
-    thread_driver = WorkerThreadDriver(0, workers, duration, result_queue, mock, 1.5)
-    thread_driver.start()
-    thread_driver.join()
-
-    num_requests = 0
-    while (True):
-        try:
-            result = result_queue.get(True, 1)
-            num_requests += 1
-            print(result)
-
-        except queue.Empty:
-            break
-
+    sleeptime = 1.5
+    reqgen = RequestGenerator(rps, duration, mock, sleeptime)
+    num_requests = reqgen.run()
     print(f'num_requests: {num_requests}')
 
 
