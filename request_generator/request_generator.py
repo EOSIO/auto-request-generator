@@ -9,16 +9,15 @@ import datetime
 # batch for the system to handle.
 
 class RequestGenerator():
-    def __init__(self, rps, duration, function, *args, **kwargs):
+    def __init__(self, rps, duration, function, arg_dict):
         self.rps = rps
         self.duration = duration
         self.function = function
-        self.args = args
-        self.kwargs = kwargs
+        self.arg_dict = arg_dict
 
     def run(self, output_file='output.log'):
         result_queue = queue.Queue()
-        thread_driver = WorkerThreadDriver(0, self.rps, self.duration, result_queue, self.function, self.args, self.kwargs)
+        thread_driver = WorkerThreadDriver(0, self.rps, self.duration, result_queue, self.function, self.arg_dict)
         thread_driver.start()
         thread_driver.join()
 
@@ -35,7 +34,7 @@ class RequestGenerator():
         return num_requests
 
 class Result():
-    def __init__(self, timestamp, url, ret_code, elapsed_time, ret_size, e=None):
+    def __init__(self, url, ret_code, ret_size, timestamp=datetime.datetime.now(), elapsed_time=0, e=None):
         self.timestamp = timestamp
         self.url = url
         self.code = ret_code
@@ -51,7 +50,7 @@ class Result():
             return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}'
 
 class WorkerThreadDriver(threading.Thread):
-    def __init__(self, driver_id, workers, duration, result_queue, function, *args, **kwargs):
+    def __init__(self, driver_id, workers, duration, result_queue, function, arg_dict):
         threading.Thread.__init__(self)
         self.driver_id = driver_id
         self.workers = workers
@@ -61,13 +60,12 @@ class WorkerThreadDriver(threading.Thread):
         self.thread_counter = 0
         self.stopped = threading.Event()
         self.function = function
-        self.args = args
-        self.kwargs = kwargs
+        self.arg_dict = arg_dict
 
     def start_batch(self):
         try:
             for i in range(self.workers):
-                    thread = WorkerThread(self.driver_id, self.thread_counter, self.result_queue, self.function, *self.args, **self.kwargs)
+                    thread = WorkerThread(self.driver_id, self.thread_counter, self.result_queue, self.function, self.arg_dict)
                     thread.start()
                     self.threads.append(thread)
                     self.thread_counter += 1
@@ -90,39 +88,38 @@ class WorkerThreadDriver(threading.Thread):
 
 
 class WorkerThread(threading.Thread):
-    def __init__(self, driver_id, thread_id, result_queue, function, *args, **kwargs):
+    def __init__(self, driver_id, thread_id, result_queue, function, arg_dict):
         threading.Thread.__init__(self)
         self.driver_id = driver_id
         self.thread_id = thread_id
         self.result_queue = result_queue
         self.function = function
-        self.args = args
-        self.kwargs = kwargs
+        self.arg_dict = arg_dict
 
     def run(self):
         start = time.perf_counter()
         try:
-            result = self.function(self.driver_id, self.thread_id, *self.args, **self.kwargs)
+            result = self.function(self.driver_id, self.thread_id, self.arg_dict)
             elapsed = time.perf_counter() - start
             result.time = elapsed
             self.result_queue.put(result)
-        except:
+        except Exception as e:
             elapsed = time.perf_counter() - start
-            self.result_queue.put(Result(datetime.datetime.now(), f'id:{self.driver_id}_{self.thread_id}', 400, elapsed, 0))
-
+            self.result_queue.put(Result(f'id:{self.driver_id}_{self.thread_id}', 400, 0, e=e))
 
 if __name__ == "__main__":
 
     # Demonstrate how to use these classes
 
-    def mock(driver_id, thread_id, t):
-        time.sleep(t)
-        return Result(datetime.datetime.now(), f'id:{driver_id}_{thread_id}', 200, 0, 0)
+    def mock(driver_id, thread_id, args):
+        print(args)
+        time.sleep(args['sleeptime'])
+        return Result(f'id:{driver_id}_{thread_id}', 200, 0)
 
-    rps = 1000
-    duration = 10
-    sleeptime = 1.5
-    reqgen = RequestGenerator(rps, duration, mock, sleeptime)
+    rps = 1
+    duration = 1
+    args= {'sleeptime': 1.5}
+    reqgen = RequestGenerator(rps, duration, mock, args)
     num_requests = reqgen.run()
     print(f'num_requests: {num_requests}')
 
