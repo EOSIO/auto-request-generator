@@ -70,16 +70,15 @@ class RequestBuilder():
                 raise Exception('Upload files must be in form_var:file_path[:content_type] format')
             file_var, file_path = i
 
-            try:
-                open(file_path, "rb")
-            except:
-                raise Exception(f'{file_path} is not a readable file!')
-
             if len(i) == 3:
                 mime_type = i[2]
             else:
-                mime_type = (mimetypes.guess_type(file_path)[0]
-                    or 'application/octet-stream')
+                try:
+                    open(file_path, "rb")
+                    mime_type = (mimetypes.guess_type(file_path)[0]
+                        or 'application/octet-stream')
+                except:
+                    raise Exception(f'{file_path} is not a readable file!')
 
             upload.append((file_var, file_path, mime_type))
 
