@@ -33,7 +33,7 @@ class CASPost:
                 endpoint,
                 params={},
                 data=None,
-                cookiejarfile='/assets/cookies.txt',
+                cookiejarfile=f'/assets/cookies-{self.config["cluster"]}.txt',
                 auth=None,
                 method='POST',
                 user_agent='reqgen',
