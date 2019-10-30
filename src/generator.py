@@ -9,8 +9,8 @@ import subprocess
 import sys
 import time
 
-from cas_post import CASPost
-from cas_get import CASGet
+from benchmarks.cas_post import CASPost
+from benchmarks.cas_get import CASGet
 
 def setup_logging(logging_level='debug'):
     log_level = logging.INFO if logging_level == 'info' else logging.DEBUG if logging_level == 'debug' else logging.ERROR
