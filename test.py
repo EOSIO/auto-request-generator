@@ -3,7 +3,10 @@ from request_generator import request_builder
 import requests
 from hyper.contrib import HTTP20Adapter
 
-def api_call(driver_id, thread_id, args):
+# This file serves as an example of how to use the request generator classes.
+
+# A function that performs a single request, called by the generator.
+def api_call(args):
 
     req = args['req']
 
@@ -27,25 +30,28 @@ def api_call(driver_id, thread_id, args):
 
     return request_generator.Result(req.url, resp.status_code, len(resp.content))
 
-rps = 1
-duration = 10
-req = request_builder.RequestBuilder(
-        'https://jsonplaceholder.typicode.com/todos/1',
-        params={},
-        data=None,
-        cookiejarfile=None,
-        auth=None,
-        method='GET',
-        user_agent='reqgen',
-        auth_type='basic',
-        headers={},
-        files=[],
-        insecure=False,
-        nokeepalive=False,
-        http2=False
-    )
-args = {'req': req}
+if __name__ == '__main__':
 
-reqgen = request_generator.RequestGenerator(rps, duration, api_call, args)
-num_requests = reqgen.run()
-print(f'num_requests: {num_requests}')
+    # An example of how to drive the function above
+    rps = 1000
+    duration = 10
+    req = request_builder.RequestBuilder(
+            'https://jsonplaceholder.typicode.com/todos/1',
+            params={},
+            data=None,
+            cookiejarfile=None,
+            auth=None,
+            method='GET',
+            user_agent='reqgen',
+            auth_type='basic',
+            headers={},
+            files=[],
+            insecure=False,
+            nokeepalive=False,
+            http2=False
+        )
+    args = {'req': req}
+
+    reqgen = request_generator.RequestGenerator(rps, duration, api_call, args)
+    num_requests = reqgen.run()
+    print(f'num_requests: {num_requests}')
