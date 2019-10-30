@@ -7,5 +7,5 @@ setup(name='request_generator',
       author='EOSIO',
       author_email='automation@block.one',
       license='MIT',
-      packages=['src.request_generator', 'src.benchmarks'],
+      packages=['src'],
       zip_safe=False)
