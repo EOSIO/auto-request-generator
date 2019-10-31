@@ -39,7 +39,7 @@ class CASPost:
                 user_agent='reqgen',
                 auth_type='basic',
                 headers={},
-                files=[f'filename:{file_path}:image/jpeg'],
+                files=[f'filename:{file_path}'],
                 insecure=False,
                 nokeepalive=False,
                 http2=False

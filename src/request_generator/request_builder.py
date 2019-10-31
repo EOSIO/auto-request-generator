@@ -65,22 +65,10 @@ class RequestBuilder():
 
         upload = []
         for file_data in files:
-            i = file_data.split(':', 2)
-            if len(i) < 2:
-                raise Exception('Upload files must be in form_var:file_path[:content_type] format')
-            file_var, file_path = i
-
-            if len(i) == 3:
-                mime_type = i[2]
-            else:
-                try:
-                    open(file_path, "rb")
-                    mime_type = (mimetypes.guess_type(file_path)[0]
-                        or 'application/octet-stream')
-                except:
-                    raise Exception(f'{file_path} is not a readable file!')
-
-            upload.append((file_var, file_path, mime_type))
+            i = file_data.split(':')
+            file_var = i[0]
+            file_path = i[1]
+            upload.append((file_var, file_path))
 
         if upload:
             method = "POST"
