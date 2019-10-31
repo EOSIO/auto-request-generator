@@ -1,9 +1,10 @@
 from http.cookiejar import MozillaCookieJar
-from urllib.parse import parse_qs
 import mimetypes
 import requests
 import requests.auth
 from hyper.contrib import HTTP20Adapter
+import socket
+from urllib.parse import urlparse
 
 class RequestBuilder():
     def __init__(self,
@@ -24,10 +25,11 @@ class RequestBuilder():
         if url[:4] != "http":
             url = "http://" + url
 
-        orig_url = url
-        if "?" in url:
-            url, query_string = url.split("?", 1)
-            params = parse_qs(query_string)
+        url_parts = urlparse(url)
+        params = url_parts.params
+        hostname = url_parts.netloc.split(':')[0]
+        host_ip = socket.gethostbyname(hostname)
+        url_with_ip = url.replace(hostname, host_ip)
 
         if not isinstance(headers, dict):
             raise Exception('Headers must be in dict form')
@@ -74,7 +76,8 @@ class RequestBuilder():
             method = "POST"
 
         self.method = method.upper()
-        self.url = orig_url
+        self.ipurl = url_with_ip
+        self.url = url
         self.params = params
         self.data = data
         self.headers = headers
