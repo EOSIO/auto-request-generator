@@ -26,10 +26,10 @@ class CASPost:
 
         endpoint = self.config.get('endpoint')
 
-        rps = int(self.config['rps'])
-        duration = int(self.config['duration'])
+        self.rps = int(self.config['rps'])
+        self.duration = int(self.config['duration'])
         file_path = '/assets/test.jpg'
-        req = request_builder.RequestBuilder(
+        self.req = request_builder.RequestBuilder(
                 endpoint,
                 params={},
                 data=None,
@@ -44,14 +44,17 @@ class CASPost:
                 nokeepalive=False,
                 http2=False
             )
-        args = {
-            'req': req,
+        self.args = {
+            'req': self.req,
             'payload_size': self.config['payload_size'],
             'file_path': file_path
         }
 
-        reqgen = request_generator.RequestGenerator(rps, duration, cas_post, args)
-        num_requests = reqgen.run()
+    def run_test(self, output_file):
+        self.logger.debug('starting test')
+        reqgen = request_generator.RequestGenerator(self.rps, self.duration, cas_post, self.args)
+        num_requests = reqgen.run(output_file=output_file)
+        self.logger.debug('finished test')
         self.logger.info(f'Sent {num_requests} requests')
 
 def cas_post(args):

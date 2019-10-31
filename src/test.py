@@ -1,6 +1,7 @@
 from request_generator import request_generator
 from request_generator import request_builder
 import requests
+import datetime
 from hyper.contrib import HTTP20Adapter
 
 # This file serves as an example of how to use the request generator classes.
@@ -15,6 +16,7 @@ def api_call(args):
         from hyper.contrib import HTTP20Adapter
         sess.mount('https://', HTTP20Adapter())
 
+    timestamp = datetime.datetime.now()
     resp = sess.request(
         req.method,
         req.url,
@@ -28,12 +30,12 @@ def api_call(args):
     )
     resp.raise_for_status()
 
-    return request_generator.Result(req.url, resp.status_code, len(resp.content))
+    return request_generator.Result(req.url, resp.status_code, len(resp.content), timestamp=timestamp)
 
 if __name__ == '__main__':
 
     # An example of how to drive the function above
-    rps = 1000
+    rps = 120
     duration = 10
     req = request_builder.RequestBuilder(
             'https://jsonplaceholder.typicode.com/todos/1',
@@ -53,5 +55,5 @@ if __name__ == '__main__':
     args = {'req': req}
 
     reqgen = request_generator.RequestGenerator(rps, duration, api_call, args)
-    num_requests = reqgen.run()
+    num_requests = reqgen.run(output_file='output.log')
     print(f'num_requests: {num_requests}')

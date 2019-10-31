@@ -15,24 +15,27 @@ class RequestGenerator():
         self.function = function
         self.arg_dict = arg_dict
 
-    def run(self, output_file='output.log'):
+    def run(self, output_file=None):
         result_queue = queue.Queue()
         thread_driver = WorkerThreadDriver(0, self.rps, self.duration, result_queue, self.function, self.arg_dict)
         thread_driver.start()
         thread_driver.join()
 
-        num_requests = 0
+        results = []
         while (True):
             try:
-                result = result_queue.get(True, 1)
-                num_requests += 1
-                # XXX need output_fiile implementatiton
-                print(result)
-
+                results.append(str(result_queue.get(True, 1)))
             except queue.Empty:
                 break
 
-        return num_requests
+        if output_file:
+            w = open(output_file,'w')
+            w.writelines(results)
+            w.close()
+        else:
+            print(''.join(results))
+
+        return len(results)
 
 class Result():
     def __init__(self, url, ret_code, ret_size, timestamp=None, elapsed_time=0, e=None):
@@ -49,9 +52,9 @@ class Result():
     def __str__(self):
         time_in_ms = int(self.time*1000)
         if self.error is not None:
-            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}, Error: {self.error}'
+            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}, Error: {self.error}\n'
         else:
-            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}'
+            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}\n'
 
 class WorkerThreadDriver(threading.Thread):
     def __init__(self, driver_id, workers, duration, result_queue, function, arg_dict):

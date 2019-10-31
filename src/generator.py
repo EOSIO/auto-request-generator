@@ -24,26 +24,6 @@ def setup_logging(logging_level='debug'):
 
     return logger
 
-def run_test(benchmark_obj, logger):
-    benchmark_args = benchmark_obj.test_command
-    logger.debug(benchmark_args)
-
-    output = open('output.log', 'a')
-    logger.debug('starting test')
-    proc = subprocess.Popen(benchmark_args, stdout=output)
-    proc.communicate()
-    logger.debug('finished test')
-    output.close()
-
-    # Remove last line from results
-    readFile = open('output.log', 'r')
-    lines = readFile.readlines()
-    readFile.close()
-
-    w = open('output.log','w')
-    w.writelines([item for item in lines[:-1]])
-    w.close()
-
 def main():
     name = os.environ.get('NAME')
     redis_ip = os.environ.get('REDIS_IP')
@@ -95,7 +75,7 @@ def main():
             logger.info(f'received data {data}')
             break
 
-    run_test(benchmark_obj, logger)
+    benchmark_obj.run_test('output.log')
 
     redis_.pubsub()
     redis_.publish('generator.finished.test', name)
