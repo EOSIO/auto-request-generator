@@ -66,7 +66,7 @@ def cas_post(args):
     sess = requests.session()
     resp = sess.request(
         req.method,
-        req.url,
+        req.ipurl,
         params=req.params,
         data=req.data,
         headers=req.headers,
