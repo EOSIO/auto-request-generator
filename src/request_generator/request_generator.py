@@ -112,7 +112,7 @@ class WorkerThread(threading.Thread):
             self.result_queue.put(result)
         except Exception as e:
             elapsed = time.perf_counter() - start
-            self.result_queue.put(Result(f'id:{self.arg_dict["driver_id"]}_{self.arg_dict["thread_id"]}', 400, 0, e=e))
+            self.result_queue.put(Result('-', 400, 0, e=e))
 
 if __name__ == "__main__":
 
