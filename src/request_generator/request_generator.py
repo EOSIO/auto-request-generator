@@ -66,7 +66,6 @@ class WorkerThreadDriver(threading.Thread):
         self.duration = duration
         self.result_queue = result_queue
         self.worker_processes = []
-        self.thread_counter = 0
         self.stopped = threading.Event()
         self.function = function
         self.arg_dict = arg_dict
@@ -74,7 +73,7 @@ class WorkerThreadDriver(threading.Thread):
     def start_batch(self):
         try:
             for i in range(self.workers):
-                    w = Worker(self.driver_id, self.thread_counter, self.result_queue, self.function, self.arg_dict)
+                    w = Worker(self.driver_id, len(self.worker_processes), self.result_queue, self.function, self.arg_dict)
                     p = Process(target=w.run, args=())
                     p.start()
                     self.worker_processes.append(p)
