@@ -1,7 +1,8 @@
 import threading
+from multiprocessing import Process, Queue
 import time
-import queue
 import datetime
+import queue
 
 # This class will create the specified number of requests per second for the
 # specified duration provided that we don't run out of available threads. That
@@ -17,7 +18,7 @@ class RequestGenerator():
         self.name = name
 
     def run(self, output_file=None):
-        result_queue = queue.Queue()
+        result_queue = Queue()
         thread_driver = WorkerThreadDriver(self.name, self.rps, self.duration, result_queue, self.function, self.arg_dict)
         thread_driver.start()
         thread_driver.join()
@@ -64,7 +65,7 @@ class WorkerThreadDriver(threading.Thread):
         self.workers = workers
         self.duration = duration
         self.result_queue = result_queue
-        self.threads = []
+        self.worker_processes = []
         self.thread_counter = 0
         self.stopped = threading.Event()
         self.function = function
@@ -73,17 +74,17 @@ class WorkerThreadDriver(threading.Thread):
     def start_batch(self):
         try:
             for i in range(self.workers):
-                    thread = WorkerThread(self.driver_id, self.thread_counter, self.result_queue, self.function, self.arg_dict)
-                    thread.start()
-                    self.threads.append(thread)
-                    self.thread_counter += 1
+                    w = Worker(self.driver_id, self.thread_counter, self.result_queue, self.function, self.arg_dict)
+                    p = Process(target=w.run, args=())
+                    p.start()
+                    self.worker_processes.append(p)
         except RuntimeError:
             print(f'Unable to create enough worker threads! (threading.active_count:{threading.active_count()})')
 
     def stop_test(self):
         self.stopped.set()
-        for thread in self.threads:
-            thread.join()
+        for worker in self.worker_processes:
+            worker.join()
 
     def run(self):
 
@@ -95,9 +96,8 @@ class WorkerThreadDriver(threading.Thread):
             batch_thread.start()
 
 
-class WorkerThread(threading.Thread):
+class Worker():
     def __init__(self, driver_id, thread_id, result_queue, function, arg_dict):
-        threading.Thread.__init__(self)
         self.result_queue = result_queue
         self.function = function
         self.arg_dict = arg_dict
