@@ -53,9 +53,9 @@ def main():
 
     benchmark = config['benchmark']
     if benchmark == 'cas-post':
-        benchmark_obj = CASPost(logger, config)
+        benchmark_obj = CASPost(logger, config, name)
     elif benchmark == 'cas-get':
-        benchmark_obj = CASGet(logger, config)
+        benchmark_obj = CASGet(logger, config, name)
     else:
         self.logger.error(f'Benchmark {benchmark} not supported')
         sys.exit(1)
