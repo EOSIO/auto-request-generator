@@ -1,5 +1,5 @@
 import threading
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Lock
 import time
 import datetime
 import queue
@@ -66,17 +66,21 @@ class WorkerThreadDriver(threading.Thread):
         self.duration = duration
         self.result_queue = result_queue
         self.worker_processes = []
+        self.worker_num = -1
         self.stopped = threading.Event()
         self.function = function
         self.arg_dict = arg_dict
+        self.lock = Lock()
 
     def start_batch(self):
         try:
             for i in range(self.workers):
-                    w = Worker(self.driver_id, len(self.worker_processes), self.result_queue, self.function, self.arg_dict)
-                    p = Process(target=w.run, args=())
-                    p.start()
-                    self.worker_processes.append(p)
+                    with self.lock:
+                        self.worker_num += 1
+                        w = Worker(self.driver_id, self.worker_num, self.result_queue, self.function, self.arg_dict)
+                        p = Process(target=w.run, args=())
+                        p.start()
+                        self.worker_processes.append(p)
         except RuntimeError:
             print(f'Unable to create enough worker threads! (threading.active_count:{threading.active_count()})')
 
