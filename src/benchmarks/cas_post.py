@@ -1,5 +1,6 @@
 import requests
 import time
+from datetime import datetime
 import os
 
 from request_generator import request_generator
@@ -64,7 +65,7 @@ def cas_post(args):
         new_file.write(os.urandom(args['payload_size']))
 
     start = time.perf_counter()
-
+    timestamp = datetime.datetime.now()
     req = args['req']
     sess = requests.session()
     resp = sess.request(
@@ -83,4 +84,4 @@ def cas_post(args):
 
     os.remove(filename)
 
-    return request_generator.Result(req.url, resp.status_code, len(resp.content), elapsed_time=elapsed)
+    return request_generator.Result(req.url, resp.status_code, len(resp.content), timestamp=timestamp, elapsed_time=elapsed)
