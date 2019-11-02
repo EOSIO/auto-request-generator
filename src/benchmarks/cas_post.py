@@ -63,6 +63,8 @@ def cas_post(args):
     with open(filename, 'wb') as new_file:
         new_file.write(os.urandom(args['payload_size']))
 
+    start = time.perf_counter()
+
     req = args['req']
     sess = requests.session()
     resp = sess.request(
@@ -77,5 +79,8 @@ def cas_post(args):
         verify=req.verify
     )
     resp.raise_for_status()
+    elapsed = time.perf_counter() - start
 
-    return request_generator.Result(req.url, resp.status_code, len(resp.content))
+    os.remove(filename)
+
+    return request_generator.Result(req.url, resp.status_code, len(resp.content), elapsed_time=elapsed)

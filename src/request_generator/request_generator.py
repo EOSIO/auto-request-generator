@@ -109,11 +109,12 @@ class WorkerThread(threading.Thread):
         try:
             result = self.function(self.arg_dict)
             elapsed = time.perf_counter() - start
-            result.time = elapsed
+            if result.time == 0:
+                result.time = elapsed
             self.result_queue.put(result)
         except Exception as e:
             elapsed = time.perf_counter() - start
-            self.result_queue.put(Result('-', 400, 0, e=e))
+            self.result_queue.put(Result('-', 400, 0, elapsed_time=elapsed, e=e))
 
 if __name__ == "__main__":
 
