@@ -7,9 +7,10 @@ from request_generator import request_generator
 from request_generator import request_builder
 
 class CASGet:
-    def __init__(self, logger, config):
+    def __init__(self, logger, config, name):
         self.logger = logger
         self.config = config
+        self.config = name
 
     def init_test(self):
         ready = self.config.get('endpoint').replace('files', 'ready')
@@ -61,7 +62,7 @@ class CASGet:
 
     def run_test(self, output_file):
         self.logger.debug('starting test')
-        reqgen = request_generator.RequestGenerator(self.rps, self.duration, cas_get, self.args)
+        reqgen = request_generator.RequestGenerator(self.name, self.rps, self.duration, cas_get, self.args, name=self.name)
         num_requests = reqgen.run(output_file=output_file)
         self.logger.debug('finished test')
         self.logger.info(f'Sent {num_requests} requests')

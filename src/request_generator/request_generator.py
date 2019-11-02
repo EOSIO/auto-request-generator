@@ -9,15 +9,16 @@ import datetime
 # batch for the system to handle.
 
 class RequestGenerator():
-    def __init__(self, rps, duration, function, arg_dict):
+    def __init__(self, rps, duration, function, arg_dict, name='0'):
         self.rps = rps
         self.duration = duration
         self.function = function
         self.arg_dict = arg_dict
+        self.name = name
 
     def run(self, output_file=None):
         result_queue = queue.Queue()
-        thread_driver = WorkerThreadDriver(0, self.rps, self.duration, result_queue, self.function, self.arg_dict)
+        thread_driver = WorkerThreadDriver(self.name, self.rps, self.duration, result_queue, self.function, self.arg_dict)
         thread_driver.start()
         thread_driver.join()
 
