@@ -54,7 +54,7 @@ if __name__ == '__main__':
     rps = 120
     duration = 10
 
-    An API calling test
+    # An API calling test
     req = request_builder.RequestBuilder(
             'https://jsonplaceholder.typicode.com/todos/1',
             params={},
@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     # A file write/delete test
     args = {
-            'payload_size': 12000,
+            'payload_size': 120000,
             'file_path': '/tmp'
         }
     print(f'write_and_delete: {duration} sec @ {rps} rps ({rps*duration} requests)')
