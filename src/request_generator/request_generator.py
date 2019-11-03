@@ -76,16 +76,13 @@ class WorkerThreadDriver(threading.Thread):
     def start_batch(self):
         timestamp = datetime.now()
         start = time.perf_counter()
-        try:
-            for i in range(self.workers):
-                with self.lock:
-                    self.worker_num += 1
-                    w = Worker(self.driver_id, self.worker_num, self.result_queue, self.function, self.arg_dict)
-                    p = Process(target=w.run, args=())
-                    p.start()
-                    self.worker_processes.append(p)
-        except RuntimeError:
-            print(f'Unable to create enough worker threads! (threading.active_count:{threading.active_count()})')
+        for i in range(self.workers):
+            with self.lock:
+                self.worker_num += 1
+                w = Worker(self.driver_id, self.worker_num, self.result_queue, self.function, self.arg_dict)
+                p = Process(target=w.run, args=())
+                p.start()
+                self.worker_processes.append(p)
         elapsed = time.perf_counter() - start
         print(f'{timestamp},{self.workers},{elapsed}')
 
@@ -100,8 +97,8 @@ class WorkerThreadDriver(threading.Thread):
         test_timer.start()
 
         while not self.stopped.wait(1.0):
-            batch_thread = threading.Thread(target=self.start_batch, args=())
-            batch_thread.start()
+            batch_process = Process(target=self.start_batch, args=())
+            batch_process.start()
 
 
 class Worker():
