@@ -3,6 +3,7 @@ from request_generator import request_builder
 import requests
 import datetime
 import time
+import os
 from hyper.contrib import HTTP20Adapter
 
 # This file serves as an example of how to use the request generator classes.
@@ -38,41 +39,62 @@ def sleepy(args):
     time.sleep(args['sleeptime'])
     return request_generator.Result(f'id:{args["driver_id"]}_{args["thread_id"]}', 200, 0)
 
+# A function that writes and deletes a file
+def write_and_delete(args):
+
+    filename = os.path.join(args['file_path'], f'{args["driver_id"]}_{args["thread_id"]}.jpg')
+    with open(filename, 'wb') as new_file:
+        new_file.write(os.urandom(args['payload_size']))
+    os.remove(filename)
+
+    return request_generator.Result(filename, 200, 0)
+
 if __name__ == '__main__':
 
-    # An example of how to drive the function above
     rps = 120
     duration = 10
-    req = request_builder.RequestBuilder(
-            'https://jsonplaceholder.typicode.com/todos/1',
-            params={},
-            data=None,
-            cookiejarfile=None,
-            auth=None,
-            method='GET',
-            user_agent='reqgen',
-            auth_type='basic',
-            headers={},
-            files=[],
-            insecure=False,
-            nokeepalive=False,
-            http2=False
-        )
-    args = {'req': req}
 
-    print(f'api_call: {duration} sec @ {rps} rps ({rps*duration} requests)')
-    reqgen = request_generator.RequestGenerator(rps, duration, api_call, args)
-    start = time.perf_counter()
-    num_requests = reqgen.run(output_file='output_api.log')
-    elapsed = time.perf_counter() - start
-    print(f'num_requests: {num_requests} ({elapsed} sec)')
+    # An API calling test
+    # req = request_builder.RequestBuilder(
+    #         'https://jsonplaceholder.typicode.com/todos/1',
+    #         params={},
+    #         data=None,
+    #         cookiejarfile=None,
+    #         auth=None,
+    #         method='GET',
+    #         user_agent='reqgen',
+    #         auth_type='basic',
+    #         headers={},
+    #         files=[],
+    #         insecure=False,
+    #         nokeepalive=False,
+    #         http2=False
+    #     )
+    # args = {'req': req}
+
+    # print(f'api_call: {duration} sec @ {rps} rps ({rps*duration} requests)')
+    # reqgen = request_generator.RequestGenerator(rps, duration, api_call, args)
+    # start = time.perf_counter()
+    # num_requests = reqgen.run(output_file='output_api.log')
+    # elapsed = time.perf_counter() - start
+    # print(f'num_requests: {num_requests} ({elapsed} sec)')
 
     # A sleep test
-    rps = 120
-    duration = 10
     args= {'sleeptime': 2.5}
     print(f'sleepy: {duration} sec @ {rps} rps ({rps*duration} requests)')
     reqgen = request_generator.RequestGenerator(rps, duration, sleepy, args)
+    start = time.perf_counter()
+    num_requests = reqgen.run(output_file='output_sleepy.log')
+    elapsed = time.perf_counter() - start
+    print(f'num_requests: {num_requests} ({elapsed} sec)')
+
+    # A file write/delete test
+    args = {
+            'payload_size': 12000,
+            'file_path': '/tmp'
+        }
+    print(f'write_and_delete: {duration} sec @ {rps} rps ({rps*duration} requests)')
+    reqgen = request_generator.RequestGenerator(rps, duration, write_and_delete, args)
     start = time.perf_counter()
     num_requests = reqgen.run(output_file='output_sleepy.log')
     elapsed = time.perf_counter() - start

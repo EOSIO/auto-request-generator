@@ -57,7 +57,7 @@ def main():
     elif benchmark == 'cas-get':
         benchmark_obj = CASGet(logger, config, name)
     else:
-        self.logger.error(f'Benchmark {benchmark} not supported')
+        logger.error(f'Benchmark {benchmark} not supported')
         sys.exit(1)
 
     benchmark_obj.init_test()
