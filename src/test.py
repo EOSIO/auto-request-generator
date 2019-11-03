@@ -54,30 +54,30 @@ if __name__ == '__main__':
     rps = 120
     duration = 10
 
-    # An API calling test
-    # req = request_builder.RequestBuilder(
-    #         'https://jsonplaceholder.typicode.com/todos/1',
-    #         params={},
-    #         data=None,
-    #         cookiejarfile=None,
-    #         auth=None,
-    #         method='GET',
-    #         user_agent='reqgen',
-    #         auth_type='basic',
-    #         headers={},
-    #         files=[],
-    #         insecure=False,
-    #         nokeepalive=False,
-    #         http2=False
-    #     )
-    # args = {'req': req}
+    An API calling test
+    req = request_builder.RequestBuilder(
+            'https://jsonplaceholder.typicode.com/todos/1',
+            params={},
+            data=None,
+            cookiejarfile=None,
+            auth=None,
+            method='GET',
+            user_agent='reqgen',
+            auth_type='basic',
+            headers={},
+            files=[],
+            insecure=False,
+            nokeepalive=False,
+            http2=False
+        )
+    args = {'req': req}
 
-    # print(f'api_call: {duration} sec @ {rps} rps ({rps*duration} requests)')
-    # reqgen = request_generator.RequestGenerator(rps, duration, api_call, args)
-    # start = time.perf_counter()
-    # num_requests = reqgen.run(output_file='output_api.log')
-    # elapsed = time.perf_counter() - start
-    # print(f'num_requests: {num_requests} ({elapsed} sec)')
+    print(f'api_call: {duration} sec @ {rps} rps ({rps*duration} requests)')
+    reqgen = request_generator.RequestGenerator(rps, duration, api_call, args)
+    start = time.perf_counter()
+    num_requests = reqgen.run(output_file='output_api.log')
+    elapsed = time.perf_counter() - start
+    print(f'num_requests: {num_requests} ({elapsed} sec)')
 
     # A sleep test
     args= {'sleeptime': 2.5}
