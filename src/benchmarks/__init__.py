@@ -1,1 +1,1 @@
-__all__ = ['generator', 'cas_post', 'cas_get']
+__all__ = ['cas_post', 'cas_get']

@@ -1,0 +1,14 @@
+steps:
+  - command: "./scripts/build-and-push-image.sh py-pkg-builder ./py-pkg-builder ${BUILDKITE_BRANCH}"
+    label: ":docker: build py-pkg-builder"
+    agents:
+      queue: "automation-eks-docker-builder-fleet"
+    concurrency: 1
+    concurrency_group: "docker-py-pkg-builder"
+  - wait
+  - command: "python setup.py sdist bdist_wheel"
+    label: ":python: build py-pkg-builder"
+    agents:
+      queue: "automation-py-pkg-builder-fleet"
+    artifact_paths: "dist/*"
+

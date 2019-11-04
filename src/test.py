@@ -96,6 +96,6 @@ if __name__ == '__main__':
     print(f'write_and_delete: {duration} sec @ {rps} rps ({rps*duration} requests)')
     reqgen = request_generator.RequestGenerator(rps, duration, write_and_delete, args)
     start = time.perf_counter()
-    num_requests = reqgen.run(output_file='output_sleepy.log')
+    num_requests = reqgen.run(output_file='output_write_and_delete.log')
     elapsed = time.perf_counter() - start
     print(f'num_requests: {num_requests} ({elapsed} sec)')
