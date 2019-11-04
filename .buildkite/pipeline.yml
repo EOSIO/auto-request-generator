@@ -1,5 +1,5 @@
 steps:
-  - command: "python setup.py sdist bdist_wheel"
+  - command: "python3 setup.py sdist bdist_wheel"
     label: ":python: build py-pkg-builder"
     agents:
       queue: "automation-py-pkg-builder-fleet"
