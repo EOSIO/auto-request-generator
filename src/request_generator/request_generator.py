@@ -97,8 +97,8 @@ class WorkerThreadDriver(threading.Thread):
         test_timer.start()
 
         while not self.stopped.wait(1.0):
-            batch_process = Process(target=self.start_batch, args=())
-            batch_process.start()
+            batch_thread = threading.Thread(target=self.start_batch, args=())
+            batch_thread.start()
 
 
 class Worker():
