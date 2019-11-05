@@ -28,7 +28,10 @@ class CASGet:
 
         endpoint = self.config.get('endpoint')
         cookiejarfile = f'/assets/cookies-{self.config["cluster"]}.txt'
-        image_hash = self.upload_file(endpoint, cookiejarfile)
+        if self.name.startswith('generator-1-'):
+            image_hash = self.upload_file(endpoint, cookiejarfile)
+        else:
+            image_hash = '20eecb396b7734682a42cceb9a5ab21eb7711ed84cfdc64652c5942abe854bc7'
         self.logger.debug(image_hash)
 
         self.rps = int(self.config['rps'])
@@ -53,11 +56,14 @@ class CASGet:
         }
 
     def upload_file(self, endpoint, cookiejarfile):
-        cj = http.cookiejar.MozillaCookieJar(cookiejarfile)
-        cj.load()
-        files = {'filename': open('/assets/test.jpg', 'rb')}
-        r = requests.post(endpoint, files=files, cookies=cj)
-        return r.text
+        try:
+            cj = http.cookiejar.MozillaCookieJar(cookiejarfile)
+            cj.load()
+            files = {'filename': open('/assets/test.jpg', 'rb')}
+            r = requests.post(endpoint, files=files, cookies=cj)
+            return r.text
+        except Exception as e:
+            self.logger.error(f'Could not upload file to CAS! {e}')
 
     def run_test(self, output_file):
         self.logger.debug('starting test')
