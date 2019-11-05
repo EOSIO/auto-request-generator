@@ -28,7 +28,8 @@ class CASGet:
 
         endpoint = self.config.get('endpoint')
         cookiejarfile = f'/assets/cookies-{self.config["cluster"]}.txt'
-        image_hash = self.upload_file(endpoint, cookiejarfile)
+        if self.name.startswith('generator-1'):
+            image_hash = self.upload_file(endpoint, cookiejarfile)
         self.logger.debug(image_hash)
 
         self.rps = int(self.config['rps'])
