@@ -3,6 +3,7 @@ from multiprocessing import Process, Queue, Lock
 import time
 from datetime import datetime
 import queue
+import uuid
 
 # This class will create the specified number of requests per second for the
 # specified duration provided that we don't run out of available threads. That
@@ -62,12 +63,10 @@ class Result():
 class WorkerThreadDriver(threading.Thread):
     def __init__(self, driver_id, workers, duration, result_queue, function, arg_dict):
         threading.Thread.__init__(self)
-        self.driver_id = driver_id
         self.workers = workers
         self.duration = duration
         self.result_queue = result_queue
         self.worker_processes = []
-        self.worker_num = -1
         self.stopped = threading.Event()
         self.function = function
         self.arg_dict = arg_dict
@@ -78,8 +77,7 @@ class WorkerThreadDriver(threading.Thread):
         start = time.perf_counter()
         for i in range(self.workers):
             with self.lock:
-                self.worker_num += 1
-                w = Worker(self.driver_id, self.worker_num, self.result_queue, self.function, self.arg_dict)
+                w = Worker(self.result_queue, self.function, self.arg_dict)
                 p = Process(target=w.run, args=())
                 p.start()
                 self.worker_processes.append(p)
@@ -102,12 +100,10 @@ class WorkerThreadDriver(threading.Thread):
 
 
 class Worker():
-    def __init__(self, driver_id, thread_id, result_queue, function, arg_dict):
+    def __init__(self, result_queue, function, arg_dict):
         self.result_queue = result_queue
         self.function = function
         self.arg_dict = arg_dict
-        self.arg_dict['driver_id'] = driver_id
-        self.arg_dict['thread_id'] = thread_id
 
     def run(self):
         start = time.perf_counter()
@@ -128,7 +124,7 @@ if __name__ == "__main__":
     def mock(args):
         print(args)
         time.sleep(args['sleeptime'])
-        return Result(f'id:{args["driver_id"]}_{args["thread_id"]}', 200, 0)
+        return Result(f'id:{uuid.uuid4()}', 200, 0)
 
     rps = 2
     duration = 2

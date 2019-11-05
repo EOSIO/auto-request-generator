@@ -4,6 +4,7 @@ import requests
 import datetime
 import time
 import os
+import uuid
 from hyper.contrib import HTTP20Adapter
 
 # This file serves as an example of how to use the request generator classes.
@@ -37,12 +38,12 @@ def api_call(args):
 # A function that sleeps
 def sleepy(args):
     time.sleep(args['sleeptime'])
-    return request_generator.Result(f'id:{args["driver_id"]}_{args["thread_id"]}', 200, 0)
+    return request_generator.Result(f'id:{uuid.uuid4()}', 200, 0)
 
 # A function that writes and deletes a file
 def write_and_delete(args):
 
-    filename = os.path.join(args['file_path'], f'{args["driver_id"]}_{args["thread_id"]}.jpg')
+    filename = os.path.join(args['file_path'], f'{uuid.uuid4()}.jpg')
     with open(filename, 'wb') as new_file:
         new_file.write(os.urandom(args['payload_size']))
     os.remove(filename)

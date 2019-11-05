@@ -2,6 +2,7 @@ import requests
 import time
 import datetime
 import os
+import uuid
 
 from request_generator import request_generator
 from request_generator import request_builder
@@ -60,7 +61,7 @@ class CASPost:
 
 def cas_post(args):
 
-    filename = os.path.join(args['file_path'], f'{args["driver_id"]}_{args["thread_id"]}.jpg')
+    filename = os.path.join(args['file_path'], f'{uuid.uuid4()}.jpg')
     with open(filename, 'wb') as new_file:
         new_file.write(os.urandom(args['payload_size']))
 
