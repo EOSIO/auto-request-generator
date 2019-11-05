@@ -28,8 +28,7 @@ class CASGet:
 
         endpoint = self.config.get('endpoint')
         cookiejarfile = f'/assets/cookies-{self.config["cluster"]}.txt'
-        if self.name.startswith('generator-1'):
-            image_hash = self.upload_file(endpoint, cookiejarfile)
+        image_hash = self.upload_file(endpoint, cookiejarfile)
         self.logger.debug(image_hash)
 
         self.rps = int(self.config['rps'])
@@ -58,7 +57,6 @@ class CASGet:
         cj.load()
         files = {'filename': open('/assets/test.jpg', 'rb')}
         r = requests.post(endpoint, files=files, cookies=cj)
-
         return r.text
 
     def run_test(self, output_file):
@@ -70,7 +68,6 @@ class CASGet:
 
 
 def cas_get(args):
-
     req = args['req']
     sess = requests.session()
     resp = sess.request(
@@ -84,6 +81,4 @@ def cas_get(args):
         cookies=req.cookies,
         verify=req.verify
     )
-    resp.raise_for_status()
-
     return request_generator.Result(req.url, resp.status_code, len(resp.content))
