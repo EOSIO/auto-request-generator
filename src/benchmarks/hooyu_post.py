@@ -3,6 +3,7 @@ import time
 import datetime
 import os
 import uuid
+import json
 
 from request_generator import request_generator
 from request_generator import request_builder
@@ -31,10 +32,27 @@ class HooyuPost:
 
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
+
+        address = {
+                'address1': "address1",
+                'address2': "address2",
+                'city': "someCity",
+                'postcode': "1234",
+                'country': "US"
+        }
+        kyc ={
+            'kyc_confirmed': "true",
+            'kyc_status': "completed",
+            'full_name': "User Full Name",
+            'country': "us",
+            'date_of_birth': "1313213132132",
+            'address': address
+        }
+
         self.req = request_builder.RequestBuilder(
                 endpoint,
                 params={},
-                data=None,
+                data=json.dumps(kyc),
                 auth=None,
                 method='POST',
                 user_agent='reqgen',
@@ -56,36 +74,15 @@ class HooyuPost:
         self.logger.info(f'Sent {num_requests} requests')
 
 def hooyu_post(args):
-
-
     start = time.perf_counter()
     timestamp = datetime.datetime.now()
-
-    address = {
-            'address1': "address1",
-            'address2': "address2",
-            'city': "someCity",
-            'postcode': "1234",
-            'country': "US"
-    }
-
-    kyc ={
-        'kyc_confirmed': True,
-        'kyc_status': "completed",
-        'full_name': "User Full Name",
-        'country': "us",
-        'date_of_birth': "01/01/01",
-        'address': address
-    }
-
-
     req = args['req']
     sess = requests.session()
     resp = sess.request(
         req.method,
         req.url,
         params=req.params,
-        data=kyc,
+        data=req.data,
         headers=req.headers,
         auth=req.auth,
         cookies=req.cookies,
@@ -93,6 +90,4 @@ def hooyu_post(args):
     )
     resp.raise_for_status()
     elapsed = time.perf_counter() - start
-
-
     return request_generator.Result(req.url, resp.status_code, len(resp.content), timestamp=timestamp, elapsed_time=elapsed)
