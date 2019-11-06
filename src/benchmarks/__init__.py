@@ -1,1 +1,1 @@
-__all__ = ['cas_post', 'cas_get']
+__all__ = ['cas_post', 'cas_get', 'hooyu_post']

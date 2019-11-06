@@ -11,6 +11,7 @@ import time
 
 from benchmarks.cas_post import CASPost
 from benchmarks.cas_get import CASGet
+from benchmarks.hooyu_post import HooyuPost
 
 def setup_logging(logging_level='debug'):
     log_level = logging.INFO if logging_level == 'info' else logging.DEBUG if logging_level == 'debug' else logging.ERROR
@@ -56,6 +57,8 @@ def main():
         benchmark_obj = CASPost(logger, config, name)
     elif benchmark == 'cas-get':
         benchmark_obj = CASGet(logger, config, name)
+    elif benchmark == 'hooyu-post':
+        benchmark_obj = HooyuPost(logger,config,name)
     else:
         logger.error(f'Benchmark {benchmark} not supported')
         sys.exit(1)
