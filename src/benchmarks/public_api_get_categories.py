@@ -74,7 +74,7 @@ def public_api_get_categories(args):
         req.method,
         req.url,
         params=req.params,
-        data=req.data,
+        json=req.data,
         headers=req.headers,
         files=None,
         auth=req.auth,
