@@ -49,7 +49,7 @@ class PrivateSigningPostTransaction:
         }
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
-        jwt = self.config.get('jwt')
+        jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6ImludGVybmFsX3NlcnZpY2UiLCJzZXJ2aWNlTmFtZSI6ImIxLWFwaS1ncmFwaHFsLXByaXZhdGUtaWRlbnRpdHkiLCJpYXQiOjE1MTYyMzkwMjJ9.C8SqnTnkTaa6wSGFC1mWX_DCTG41rO_ifRu4MnU_Pls'
         bearer = f'Bearer {jwt}'
         self.req = request_builder.RequestBuilder(
                 endpoint,
