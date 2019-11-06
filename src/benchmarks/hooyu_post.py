@@ -41,11 +41,13 @@ class HooyuPost:
                 'country': "US"
         }
         kyc ={
+            'reference': "reference",
             'kyc_confirmed': "true",
             'kyc_status': "completed",
             'full_name': "User Full Name",
-            'country': "us",
+            'country': "US",
             'date_of_birth': "1313213132132",
+            'selfie': "selfie",
             'address': address
         }
 
