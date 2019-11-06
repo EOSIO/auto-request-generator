@@ -15,7 +15,7 @@ class HooyuPost:
         self.name = name
 
     def init_test(self):
-        ready = self.config.get('endpoint').replace('files', 'ready')
+        ready = self.config.get('endpoint').replace('callback', 'ready')
         self.logger.debug(ready)
         while True:
             try:
