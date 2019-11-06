@@ -57,7 +57,7 @@ def main():
         benchmark_obj = CASPost(logger, config, name)
     elif benchmark == 'cas-get':
         benchmark_obj = CASGet(logger, config, name)
-    elif benchmark == 'public-api-get-categories'
+    elif benchmark == 'public-api-get-categories':
         benchmark_obj = PublicApiGetCategories(logger, config, name)
     else:
         logger.error(f'Benchmark {benchmark} not supported')
