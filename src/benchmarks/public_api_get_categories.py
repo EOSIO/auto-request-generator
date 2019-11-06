@@ -14,7 +14,7 @@ class PublicApiGetCategories:
         self.name = name
 
     def init_test(self):
-        ready = self.config.get('endpoint').replace('graphql', 'ready')
+        ready = self.config.get('endpoint').replace('/graphql', '/ready')
         self.logger.debug(ready)
         while True:
             try:
