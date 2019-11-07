@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 
+from benchmarks.nginx import NginxGet
 from benchmarks.cas_post import CASPost
 from benchmarks.cas_get import CASGet
 from benchmarks.public_api_get_categories import PublicApiGetCategories
@@ -53,7 +54,9 @@ def main():
     config = json.loads(config)
 
     benchmark = config['benchmark']
-    if benchmark == 'cas-post':
+    if benchmark == 'nginx-get':
+        benchmark_obj = NginxGet(logger, config, name)
+    elif benchmark == 'cas-post':
         benchmark_obj = CASPost(logger, config, name)
     elif benchmark == 'cas-get':
         benchmark_obj = CASGet(logger, config, name)
