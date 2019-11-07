@@ -54,13 +54,15 @@ class HooyuPost:
         self.req = request_builder.RequestBuilder(
                 endpoint,
                 params={},
-                data=json.dumps(kyc),
+                data=kyc,
                 cookiejarfile=f'/assets/cookies-{self.config["cluster"]}.txt',
                 auth=None,
                 method='POST',
                 user_agent='reqgen',
                 auth_type='basic',
-                headers={},
+                headers={
+                    'Content-Type': 'application/json'
+                },
                 insecure=False,
                 nokeepalive=False,
                 http2=False
@@ -83,7 +85,7 @@ def hooyu_post(args):
         req.method,
         req.url,
         params=req.params,
-        data=req.data,
+        json=req.data,
         headers=req.headers,
         auth=req.auth,
         cookies=req.cookies,
