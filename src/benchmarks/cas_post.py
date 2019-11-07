@@ -31,6 +31,7 @@ class CASPost:
 
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
+        self.threads = int(self.config['threads'])
         self.req = request_builder.RequestBuilder(
                 endpoint,
                 params={},
@@ -54,7 +55,7 @@ class CASPost:
 
     def run_test(self, output_file):
         self.logger.debug('starting test')
-        reqgen = request_generator.RequestGenerator(self.rps, self.duration, cas_post, self.args, name=self.name)
+        reqgen = request_generator.RequestGenerator(self.rps, self.duration, self.threads, cas_post, self.args, name=self.name)
         num_requests = reqgen.run(output_file=output_file)
         self.logger.debug('finished test')
         self.logger.info(f'Sent {num_requests} requests')
@@ -78,7 +79,8 @@ def cas_post(args):
         files=[('filename', filename)],
         auth=req.auth,
         cookies=req.cookies,
-        verify=req.verify
+        verify=req.verify,
+        timeout=30
     )
     resp.raise_for_status()
     elapsed = time.perf_counter() - start

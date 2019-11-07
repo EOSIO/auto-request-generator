@@ -36,6 +36,7 @@ class CASGet:
 
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
+        self.threads = int(self.config['threads'])
         self.req = request_builder.RequestBuilder(
                 os.path.join(endpoint, image_hash),
                 params={},
@@ -67,7 +68,7 @@ class CASGet:
 
     def run_test(self, output_file):
         self.logger.debug('starting test')
-        reqgen = request_generator.RequestGenerator(self.rps, self.duration, cas_get, self.args, name=self.name)
+        reqgen = request_generator.RequestGenerator(self.rps, self.duration, self.threads, cas_get, self.args, name=self.name)
         num_requests = reqgen.run(output_file=output_file)
         self.logger.debug('finished test')
         self.logger.info(f'Sent {num_requests} requests')
@@ -85,6 +86,7 @@ def cas_get(args):
         files=req.files,
         auth=req.auth,
         cookies=req.cookies,
-        verify=req.verify
+        verify=req.verify,
+        timeout=30
     )
     return request_generator.Result(req.url, resp.status_code, len(resp.content))
