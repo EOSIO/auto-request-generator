@@ -7,7 +7,7 @@ import uuid
 from request_generator import request_generator
 from request_generator import request_builder
 
-class PublicApiGetCategories:
+class PrivateApiGetUsername:
     def __init__(self, logger, config, name):
         self.logger = logger
         self.config = config
@@ -18,20 +18,18 @@ class PublicApiGetCategories:
         self.logger.debug(ready)
         while True:
             try:
-                self.logger.info('Trying Public GraphQL API...')
+                self.logger.info('Trying Private GraphQL API...')
                 r = requests.get(ready, timeout=5)
                 if r.status_code == 200:
                     self.logger.info('Got 200 from ready endpoint')
                     break
             except Exception:
-                self.logger.error('Public API isnt ready yet')
+                self.logger.error('Private API isnt ready yet')
                 time.sleep(1)
 
         endpoint = self.config.get('endpoint')
         self.data = {
-          "operationName":"Categories",
-          "variables":{},
-          "query":"query Categories {\n  categories {\n    category_id\n    name\n    __typename\n  }\n}\n"
+          "query":"query {\n  getUserDataByVoiceId(voice_id:\"anthonystark\") { username }\n}\n"
         }
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
@@ -60,12 +58,12 @@ class PublicApiGetCategories:
 
     def run_test(self, output_file):
         self.logger.debug('starting test')
-        reqgen = request_generator.RequestGenerator(self.rps, self.duration, self.threads, public_api_get_categories, self.args, name=self.name)
+        reqgen = request_generator.RequestGenerator(self.rps, self.duration, self.threads, private_api_get_username, self.args, name=self.name)
         num_requests = reqgen.run(output_file=output_file)
         self.logger.debug('finished test')
         self.logger.info(f'Sent {num_requests} requests')
 
-def public_api_get_categories(args):
+def private_api_get_username(args):
 
     start = time.perf_counter()
     timestamp = datetime.datetime.now()
