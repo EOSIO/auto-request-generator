@@ -28,15 +28,16 @@ class PrivateSigningPostTransaction:
                 time.sleep(1)
 
         endpoint = self.config.get('endpoint')
+        jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6ImludGVybmFsX3NlcnZpY2UiLCJzZXJ2aWNlTmFtZSI6ImIxLWFwaS1ncmFwaHFsLXByaXZhdGUtaWRlbnRpdHkiLCJpYXQiOjE1MTYyMzkwMjJ9.C8SqnTnkTaa6wSGFC1mWX_DCTG41rO_ifRu4MnU_Pls'
         self.data = {
           "transaction": {
             "actions": [
               {
-                "account": "account",
+                "account": "signup.b1",
                 "name": "cnfrmphone",
                 "authorization": [
                   {
-                    "actor": "account",
+                    "actor": "signup.b1",
                     "permission": "active",
                   }
                 ],
@@ -49,8 +50,6 @@ class PrivateSigningPostTransaction:
         }
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
-        jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6ImludGVybmFsX3NlcnZpY2UiLCJzZXJ2aWNlTmFtZSI6ImIxLWFwaS1ncmFwaHFsLXByaXZhdGUtaWRlbnRpdHkiLCJpYXQiOjE1MTYyMzkwMjJ9.C8SqnTnkTaa6wSGFC1mWX_DCTG41rO_ifRu4MnU_Pls'
-        bearer = f'Bearer {jwt}'
         self.req = request_builder.RequestBuilder(
                 endpoint,
                 params={},
@@ -62,7 +61,7 @@ class PrivateSigningPostTransaction:
                 auth_type='basic',
                 headers={
                   'Content-Type': 'application/json',
-                  'Authorization': bearer
+                  'Authorization': f'Bearer {jwt}'
                 },
                 files=[], # this will get filled by the workers
                 insecure=False,
