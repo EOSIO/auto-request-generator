@@ -77,8 +77,6 @@ class HooyuPost:
         self.logger.info(f'Sent {num_requests} requests')
 
 def hooyu_post(args):
-    start = time.perf_counter()
-    timestamp = datetime.datetime.now()
     req = args['req']
     sess = requests.session()
     resp = sess.request(
@@ -91,6 +89,4 @@ def hooyu_post(args):
         cookies=req.cookies,
         verify=req.verify
     )
-    resp.raise_for_status()
-    elapsed = time.perf_counter() - start
-    return request_generator.Result(req.url, resp.status_code, len(resp.content), timestamp=timestamp, elapsed_time=elapsed)
+    return request_generator.Result(req.url, resp.status_code, len(resp.content))
