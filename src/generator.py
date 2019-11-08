@@ -13,8 +13,12 @@ from benchmarks.nginx import NginxGet
 from benchmarks.cas_post import CASPost
 from benchmarks.cas_get import CASGet
 from benchmarks.public_api_get_categories import PublicApiGetCategories
+<<<<<<< HEAD
 from benchmarks.private_api_get_username import PrivateApiGetUsername
 from benchmarks.hooyu_get import HooyuGet
+=======
+from benchmarks.hooyu_post import HooyuPost
+>>>>>>> adds hooyu post generator (wip)
 
 def setup_logging(logging_level='debug'):
     log_level = logging.INFO if logging_level == 'info' else logging.DEBUG if logging_level == 'debug' else logging.ERROR
@@ -68,6 +72,8 @@ def main():
         benchmark_obj = PrivateApiGetUsername(logger, config, name)
     elif benchmark == 'hooyu-get':
         benchmark_obj = HooyuGet(logger, config, name)
+    elif benchmark == 'hooyu-post':
+        benchmark_obj = HooyuPost(logger,config,name)
     else:
         logger.error(f'Benchmark {benchmark} not supported')
         sys.exit(1)
