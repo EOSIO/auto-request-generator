@@ -50,6 +50,7 @@ class PrivateSigningPostTransaction:
         }
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
+        self.threads = int(self.config['threads'])
         self.req = request_builder.RequestBuilder(
                 endpoint,
                 params={},
@@ -75,7 +76,7 @@ class PrivateSigningPostTransaction:
 
     def run_test(self, output_file):
         self.logger.debug('starting test')
-        reqgen = request_generator.RequestGenerator(self.rps, self.duration, private_signing_post_transaction, self.args, name=self.name)
+        reqgen = request_generator.RequestGenerator(self.rps, self.duration, self.threads, private_signing_post_transaction, self.args, name=self.name)
         num_requests = reqgen.run(output_file=output_file)
         self.logger.debug('finished test')
         self.logger.info(f'Sent {num_requests} requests')
