@@ -3,6 +3,7 @@ import time
 import datetime
 import os
 import uuid
+import random
 
 from request_generator import request_generator
 from request_generator import request_builder
@@ -29,25 +30,7 @@ class PrivateSigningPostTransaction:
 
         endpoint = self.config.get('endpoint')
         jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6ImludGVybmFsX3NlcnZpY2UiLCJzZXJ2aWNlTmFtZSI6ImIxLWFwaS1ncmFwaHFsLXByaXZhdGUtaWRlbnRpdHkiLCJpYXQiOjE1MTYyMzkwMjJ9.C8SqnTnkTaa6wSGFC1mWX_DCTG41rO_ifRu4MnU_Pls'
-        self.data = {
-          "transaction": {
-            "actions": [
-              {
-                "account": "signup.b1",
-                "name": "cnfrmphone",
-                "authorization": [
-                  {
-                    "actor": "signup.b1",
-                    "permission": "active",
-                  }
-                ],
-                "data": {
-                  "reference": 222,
-                }
-              }
-            ]
-          }
-        }
+        self.data = {}
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
         self.threads = int(self.config['threads'])
@@ -82,6 +65,25 @@ class PrivateSigningPostTransaction:
         self.logger.info(f'Sent {num_requests} requests')
 
 def private_signing_post_transaction(args):
+    json_data = {
+      "transaction": {
+        "actions": [
+          {
+            "account": "signup.b1",
+            "name": "cnfrmphone",
+            "authorization": [
+              {
+                "actor": "signup.b1",
+                "permission": "active",
+              }
+            ],
+            "data": {
+              "reference": random.randint(0,1000000),
+            }
+          }
+        ]
+      }
+    }
     start = time.perf_counter()
     timestamp = datetime.datetime.now()
     req = args['req']
@@ -90,7 +92,7 @@ def private_signing_post_transaction(args):
         req.method,
         req.url,
         params=req.params,
-        json=req.data,
+        json=json_data,
         headers=req.headers,
         files=None,
         auth=req.auth,
