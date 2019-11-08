@@ -97,7 +97,8 @@ def private_signing_post_transaction(args):
         files=None,
         auth=req.auth,
         cookies=req.cookies,
-        verify=req.verify
+        verify=req.verify,
+        timeout=5
     )
     resp.raise_for_status()
     elapsed = time.perf_counter() - start
