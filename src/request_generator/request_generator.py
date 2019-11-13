@@ -1,3 +1,5 @@
+import itertools
+import os
 import threading
 import time
 from datetime import datetime, timedelta
@@ -75,7 +77,7 @@ class WorkerThreadDriver(object):
         print(f'creating {self.thread_count} workers...')
         for i in range(self.thread_count):
             each_rps = self.rps / self.thread_count
-            self.workers.append(Worker(self.result_queue, self.function, self.arg_dict, self.duration, each_rps))
+            self.workers.append(Worker(i, self.thread_count, self.result_queue, self.function, self.arg_dict, self.duration, each_rps))
 
         print('starting workers...')
         for worker in self.workers:
@@ -89,22 +91,36 @@ class WorkerThreadDriver(object):
 
 
 class Worker(threading.Thread):
-    def __init__(self, result_queue, function, arg_dict, duration, rps):
+    def __init__(self, thread_id, generator_thread_count, result_queue, function, arg_dict, duration, rps):
         threading.Thread.__init__(self)
 
-        print('initializing worker')
+        print(f'initializing worker {thread_id}')
+        self.thread_id = thread_id
         self.result_queue = result_queue
         self.function = function
         self.arg_dict = arg_dict
         self.duration = duration
         self.rps = rps
 
+        generator_index = int(os.environ['INDEX']) - 1
+        self.total_thread_count = int(os.environ['GENERATOR_COUNT']) * generator_thread_count
+        self.global_thread_id = (generator_index * generator_thread_count) + thread_id
+
+    def sleep_until(self, timestamp):
+        diff = (timestamp - datetime.now()).total_seconds()
+        if diff > 0:
+            time.sleep(diff)
+
     def run(self):
-        sleep_length = 1 / self.rps
-        test_start = datetime.now()
-        iteration = 0
         print(f'starting run: {self.rps} rps')
-        while True:
+
+        sleep_length = 1 / self.rps
+        start_offset = self.global_thread_id * (sleep_length / self.total_thread_count)
+
+        test_start = datetime.now() + timedelta(seconds=start_offset)
+        self.sleep_until(test_start)
+
+        for i in itertools.count(1):
             start = time.perf_counter()
             try:
                 result = self.function(self.arg_dict)
@@ -121,10 +137,8 @@ class Worker(threading.Thread):
                 print('exiting worker process')
                 break
             else:
-                iteration += 1
-                next_request = test_start + timedelta(seconds=(iteration * sleep_length))
-                s = (next_request - now).total_seconds()
-                time.sleep(max(0, (next_request - now).total_seconds()))
+                next_request = test_start + timedelta(seconds=(i * sleep_length))
+                self.sleep_until(next_request)
 
 
 if __name__ == "__main__":
