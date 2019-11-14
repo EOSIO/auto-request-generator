@@ -16,6 +16,7 @@ class NginxGet:
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
         self.threads = int(self.config['threads'])
+        self.adapter = requests.adapters.HTTPAdapter(pool_connections=self.threads, pool_maxsize=self.threads*10)
         self.req = request_builder.RequestBuilder(
                 self.config['endpoint'],
                 method='GET',
@@ -23,6 +24,7 @@ class NginxGet:
             )
         self.args = {
             'req': self.req,
+            'adapter': self.adapter,
         }
 
 
@@ -37,6 +39,7 @@ class NginxGet:
 def nginx_get(args):
     req = args['req']
     sess = requests.session()
+    sess.mount('http://', args['adapter'])
     resp = sess.request(
         req.method,
         req.url,
