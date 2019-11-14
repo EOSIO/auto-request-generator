@@ -51,7 +51,7 @@ class CASPost:
         self.args = {
             'req': self.req,
             'payload_size': self.config['payload_size'],
-            'file_path': '/assets/'
+            'file_path': '/assets/',
             'adapter': self.adapter,
         }
 
