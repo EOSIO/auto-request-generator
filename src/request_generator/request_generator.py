@@ -58,7 +58,7 @@ class Result():
     def __str__(self):
         time_in_ms = int(self.time*1000)
         if self.error is not None:
-            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}, Error: {self.error}\n'
+            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}, Error: "{self.error}"\n'
         else:
             return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}\n'
 
