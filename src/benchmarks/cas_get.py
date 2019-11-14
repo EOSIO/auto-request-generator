@@ -37,7 +37,7 @@ class CASGet:
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
         self.threads = int(self.config['threads'])
-        self.adapter = requests.adapters.HTTPAdapter(pool_connections=self.threads, pool_maxsize=self.threads*100)
+        self.adapter = requests.adapters.HTTPAdapter(pool_connections=self.threads, pool_maxsize=self.threads*10)
         self.req = request_builder.RequestBuilder(
                 os.path.join(endpoint, image_hash),
                 params={},
