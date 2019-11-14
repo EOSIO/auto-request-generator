@@ -32,6 +32,7 @@ class CASPost:
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
         self.threads = int(self.config['threads'])
+        self.adapter = requests.adapters.HTTPAdapter(pool_connections=self.threads, pool_maxsize=self.threads*10)
         self.req = request_builder.RequestBuilder(
                 endpoint,
                 params={},
@@ -50,7 +51,8 @@ class CASPost:
         self.args = {
             'req': self.req,
             'payload_size': self.config['payload_size'],
-            'file_path': '/assets/'
+            'file_path': '/assets/',
+            'adapter': self.adapter,
         }
 
     def run_test(self, output_file):
@@ -70,6 +72,7 @@ def cas_post(args):
     timestamp = datetime.datetime.now()
     req = args['req']
     sess = requests.session()
+    sess.mount('http://', args['adapter'])
     resp = sess.request(
         req.method,
         req.url,

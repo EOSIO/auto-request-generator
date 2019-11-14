@@ -36,6 +36,7 @@ class PublicApiGetCategories:
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
         self.threads = int(self.config['threads'])
+        self.adapter = requests.adapters.HTTPAdapter(pool_connections=self.threads, pool_maxsize=self.threads*10)
         self.req = request_builder.RequestBuilder(
                 endpoint,
                 params={},
@@ -55,7 +56,8 @@ class PublicApiGetCategories:
             )
         self.args = {
             'req': self.req,
-            'query': self.data
+            'query': self.data,
+            'adapter': self.adapter,
         }
 
     def run_test(self, output_file):
@@ -71,6 +73,7 @@ def public_api_get_categories(args):
     timestamp = datetime.datetime.now()
     req = args['req']
     sess = requests.session()
+    sess.mount('http://', args['adapter'])
     resp = sess.request(
         req.method,
         req.url,
