@@ -2,6 +2,7 @@ import http.cookiejar
 import requests
 import time
 import os
+import datetime
 
 from request_generator import request_generator
 from request_generator import request_builder
@@ -77,6 +78,8 @@ class CASGet:
 
 
 def cas_get(args):
+    start = time.perf_counter()
+    timestamp = datetime.datetime.now()
     req = args['req']
     sess = requests.session()
     sess.mount('http://', args['adapter'])
@@ -92,4 +95,6 @@ def cas_get(args):
         verify=req.verify,
         timeout=30
     )
-    return request_generator.Result(req.url, resp.status_code, len(resp.content))
+    elapsed = time.perf_counter() - start
+
+    return request_generator.Result(req.url, resp.status_code, len(resp.content), timestamp=timestamp, elapsed_time=elapsed)
