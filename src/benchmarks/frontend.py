@@ -13,6 +13,19 @@ class Frontend:
         self.name = name
 
     def init_test(self):
+        status = f'{self.config.get('endpoint')}/status'
+        self.logger.debug(status)
+        while True:
+            try:
+                self.logger.info('Trying b1-frontend...')
+                r = requests.get(status, timeout=5)
+                if r.status_code == 200:
+                    self.logger.info('Got 200 from status endpoint')
+                    break
+            except Exception:
+                self.logger.error('b1-frontend isnt ready yet')
+                time.sleep(1)
+
         self.rps = int(self.config['rps'])
         self.duration = int(self.config['duration'])
         self.threads = int(self.config['threads'])
