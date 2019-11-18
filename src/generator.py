@@ -16,6 +16,7 @@ from benchmarks.public_api_get_categories import PublicApiGetCategories
 from benchmarks.private_api_get_username import PrivateApiGetUsername
 from benchmarks.hooyu_get import HooyuGet
 from benchmarks.private_signing_post_transaction import PrivateSigningPostTransaction
+from benchmarks.frontend import Frontend
 
 def setup_logging(logging_level='debug'):
     log_level = logging.INFO if logging_level == 'info' else logging.DEBUG if logging_level == 'debug' else logging.ERROR
@@ -71,6 +72,8 @@ def main():
         benchmark_obj = HooyuGet(logger, config, name)
     elif benchmark == 'private-signing-post-transaction':
         benchmark_obj = PrivateSigningPostTransaction(logger, config, name)
+    elif benchmark == 'frontend':
+        benchmark_obj = Frontend(logger, config, name)
     else:
         logger.error(f'Benchmark {benchmark} not supported')
         sys.exit(1)
