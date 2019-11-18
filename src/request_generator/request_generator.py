@@ -53,12 +53,12 @@ class Result():
         self.code = ret_code
         self.time = elapsed_time
         self.size = ret_size
-        self.error = e
+        self.error = str(e).replace(',', '_')
 
     def __str__(self):
         time_in_ms = int(self.time*1000)
         if self.error is not None:
-            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}, Error: {self.error.replace(',', '_')}\n'
+            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}, Error: {self.error}\n'
         else:
             return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}\n'
 
