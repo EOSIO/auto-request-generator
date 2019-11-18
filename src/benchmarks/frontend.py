@@ -2,6 +2,7 @@ import http.cookiejar
 import requests
 import time
 import os
+import mechanize
 
 from request_generator import request_generator
 from request_generator import request_builder
@@ -13,7 +14,7 @@ class Frontend:
         self.name = name
 
     def init_test(self):
-        status = f'{self.config.get('endpoint')}/status'
+        status = f'{self.config.get("endpoint")}/status'
         self.logger.debug(status)
         while True:
             try:
@@ -50,6 +51,9 @@ class Frontend:
 
 
 def frontend_get_posts(args):
+    br = mechanize.Browser()
+    start = time.perf_counter()
+    timestamp = datetime.datetime.now()
     req = args['req']
     sess = requests.session()
     sess.mount('http://', args['adapter'])
@@ -65,4 +69,6 @@ def frontend_get_posts(args):
         verify=req.verify,
         timeout=30
     )
-    return request_generator.Result(req.url, resp.status_code, len(resp.content))
+    elapsed = time.perf_counter() - start
+
+    return request_generator.Result(req.url, resp.status_code, len(resp.content), timestamp=timestamp, elapsed_time=elapsed)
