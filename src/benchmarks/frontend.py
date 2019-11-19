@@ -2,8 +2,14 @@ import http.cookiejar
 import requests
 import time
 import os
-import mechanize
 import datetime
+import re
+
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from request_generator import request_generator
 from request_generator import request_builder
@@ -32,14 +38,20 @@ class Frontend:
         self.duration = int(self.config['duration'])
         self.threads = int(self.config['threads'])
         self.adapter = requests.adapters.HTTPAdapter(pool_connections=self.threads, pool_maxsize=self.threads*10)
-        self.req = request_builder.RequestBuilder(
-                self.config['endpoint'],
-                method='GET',
-                user_agent='reqgen',
-            )
+
+        chromeOptions = webdriver.ChromeOptions()
+        chromeOptions.add_argument("--no-sandbox")
+        chromeOptions.add_argument("--disable-setuid-sandbox")
+        chromeOptions.add_argument("--remote-debugging-port=9222")
+        chromeOptions.add_argument("--disable-dev-shm-using")
+        chromeOptions.add_argument("--disable-extensions")
+        chromeOptions.add_argument("--disable-gpu")
+        chromeOptions.add_argument("--headless")
+        self.browser = webdriver.Chrome(options=chromeOptions)
+
         self.args = {
-            'req': self.req,
-            'adapter': self.adapter,
+            'browser': self.browser,
+            'url': self.config['endpoint'],
         }
 
 
@@ -52,24 +64,20 @@ class Frontend:
 
 
 def frontend_get_posts(args):
-    br = mechanize.Browser()
+    browser = args['browser']
+
     start = time.perf_counter()
     timestamp = datetime.datetime.now()
-    req = args['req']
-    sess = requests.session()
-    sess.mount('http://', args['adapter'])
-    resp = sess.request(
-        req.method,
-        req.url,
-        params=req.params,
-        data=req.data,
-        headers=req.headers,
-        files=req.files,
-        auth=req.auth,
-        cookies=req.cookies,
-        verify=req.verify,
-        timeout=30
-    )
+    browser.get(args['url'])
     elapsed = time.perf_counter() - start
 
-    return request_generator.Result(req.url, resp.status_code, len(resp.content), timestamp=timestamp, elapsed_time=elapsed)
+    soup = BeautifulSoup(browser.page_source,'html.parser')
+    results = soup.findAll('div', {'class': re.compile('^post-feed-entry')})
+    if len(results) > 1:
+        status_code = 200
+        error = None
+    else:
+        status_code = 400
+        error = 'No posts found'
+
+    return request_generator.Result(args['url'], status_code, len(browser.page_source), timestamp=timestamp, elapsed_time=elapsed, e=error)
