@@ -70,6 +70,7 @@ def frontend_get_posts(args):
     timestamp = datetime.datetime.now()
     browser.get(args['url'])
     elapsed = time.perf_counter() - start
+    time.sleep(3)
 
     soup = BeautifulSoup(browser.page_source,'html.parser')
     results = soup.findAll('div', {'class': re.compile('^post-feed-entry')})
