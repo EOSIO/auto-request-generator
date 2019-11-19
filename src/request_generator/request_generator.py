@@ -57,11 +57,7 @@ class Result():
 
     def __str__(self):
         time_in_ms = int(self.time*1000)
-        if self.error is not None:
-            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}, Error: {self.error}\n'
-        else:
-            return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}\n'
-
+        return f'Timestamp: {str(self.timestamp)}, Code: {self.code}, Size: {self.size}, Time: {time_in_ms}ms, URL: {self.url}, Error: {self.error}\n'
 
 class WorkerThreadDriver(object):
     def __init__(self, driver_id, rps, thread_count, duration, result_queue, function, arg_dict):
