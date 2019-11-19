@@ -13,7 +13,7 @@ class Frontend:
         self.name = name
 
     def init_test(self):
-        status = f'{self.config.get('endpoint')}/status'
+        status = f'{self.config.get("endpoint")}/status'
         self.logger.debug(status)
         while True:
             try:
