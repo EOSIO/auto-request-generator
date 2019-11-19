@@ -30,6 +30,17 @@ def setup_logging(logging_level='debug'):
 
     return logger
 
+def publish_to_redis(redis_, channel, message, logger, retries=10, failures=0):
+    try:
+        redis_.pubsub()
+        redis_.publish(channel, message)
+    except Exception as e:
+        logger.info(f'Failed to publish to redis ({failures}/{retries}): {e}')
+        failures += 1
+        if failures < retries:
+            time.sleep(1)
+            publish_to_redis(redis_, channel, message, logger, failures=failures)
+
 def main():
     name = os.environ.get('NAME')
     redis_ip = os.environ.get('REDIS_IP')
@@ -80,8 +91,7 @@ def main():
 
     benchmark_obj.init_test()
 
-    redis_.pubsub()
-    redis_.publish('generator.finished.setup', name)
+    publish_to_redis(redis_, 'generator.finished.setup', name, logger)
 
     runtest_pubsub = redis_.pubsub()
     runtest_pubsub.subscribe('generator.start.test')
@@ -95,8 +105,7 @@ def main():
 
     benchmark_obj.run_test('output.log')
 
-    redis_.pubsub()
-    redis_.publish('generator.finished.test', name)
+    publish_to_redis(redis_, 'generator.finished.test', name, logger)
 
 if __name__ == '__main__':
     main()
